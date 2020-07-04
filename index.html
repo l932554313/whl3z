@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css" />
+    <script type="text/javascript" src="js/jquery-3.1.1.min.js" ></script>
+    <script type="text/javascript" src="js/common.js" ></script>
+    <script type="text/javascript" src="js/init.js" ></script>
+    <script type="text/javascript" src="js/play.js" ></script>
+    <style>
+        html,/*双标签都可以用*/
+        body {
+            font-family: "microsoft yahei";
+            font-size: 0.95rem;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;//将超出部分隐藏
+        }
+
+        .page_head {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #C52F30;
+            z-index: 1;
+        }
+
+        .page_palybar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #FAFAFA;
+            border: 1px solid #DDDDDD;
+            z-index: 1;
+        }
+
+        .page_palybar>.playbar_btns {
+            width: 220px;
+            height: 100%;
+            text-align: center;
+            float: left;
+        }
+
+        .page_palybar>.playbar_btns>.btn {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: #C52F30;
+            border-radius: 50%;
+            margin-left: 17px;
+            position: relative;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .page_palybar>.playbar_btns>.play {
+            width: 45px;
+            height: 45px;
+        }
+
+        .page_palybar>.playbar_btns>.btn>.fa {
+            font-size: 1.5rem;
+            color: #FFFFFF;
+            position: relative;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .page_palybar>.playbar_process {
+            width: calc(100% - 220px - 300px);
+            height: 100%;
+            float: left;
+        }
+
+        .page_palybar>.playbar_process>.play_process {
+            position: relative;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 80%;
+            height: 8px;
+            margin: 0 auto;
+            border-radius: 5px;
+            background-color: #C4C4C4;
+        }
+
+        .page_palybar>.playbar_process>.play_process>.process_cache {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #A2A2A2;
+            border-radius: 5px;
+        }
+
+        .page_palybar>.playbar_process>.play_process>.process_current {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 100%;
+            background-color: #C52F30;
+            border-radius: 5px;
+        }
+
+        .page_palybar>.playbar_process>.play_process>.process_current>.circle {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translate(-50%, -50%);
+            width: 15px;
+            height: 15px;
+            background-color: #FFFFFF;
+            border-radius: 50%;
+            box-shadow: 3px 2px 5px black;
+            cursor: pointer;
+        }
+
+
+
+        .page_palybar>.playbar_process>.play_process>.time_star{
+            position: absolute;
+            top: 50%;
+            right:101%;
+            transform:translateY(-50%)
+        }
+
+        .page_palybar>.playbar_process>.play_process>.time_end{
+            position: absolute;
+            top: 50%;
+            left:101%;
+            transform:translateY(-50%)
+        }
+
+
+
+
+
+
+        .page_menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 220px;
+            background-color: #FAFAFA;
+            border: 1px solid #DDDDDD;
+            padding: 60px 0 120px 0;
+            box-sizing: border-box;
+        }
+
+        .smallwindow {
+            position: absolute;
+            left: 0;
+            bottom: 60px;
+            height: 60px;
+            width: 220px;
+            box-sizing: border-box;//固定大小，边距内算
+        }
+
+        .smallwindow>.poster {
+            float: left;
+            width: 30%;
+            height: 100%;
+        }
+
+        .smallwindow>.poster>img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .smallwindow>.info {
+            float: left;
+            width: 60%;
+            height: 100%;
+        }
+
+        .smallwindow>.info>p {
+            margin: 5px 10px;
+        }
+
+        .smallwindow>.btngroups {
+            float: left;
+            /*width:60%;*/
+            height: 100%;
+        }
+
+        .smallwindow>.btngroups>div {
+            height: 50%;
+        }
+
+        .menulist {
+            height: 100%;
+            overflow-y: scroll;
+            box-sizing: border-box;
+        }
+
+        .menulist>.list>.title {
+            padding-left: 10px;
+            line-height: 2rem;
+            color: #888888;
+        }
+
+        .menulist>.list>.btngroups>.btn {
+            padding-left: 20px;
+            line-height: 1.5rem;
+            color: #888888;
+        }
+
+        .page_main {
+            padding: 60px 0 60px 220px;
+            height: 100%;
+            box-sizing: border-box;
+            background-color: #FAFAFA;
+        }
+
+        .page_main>.main_container {
+            height: 100%;
+            overflow-y: scroll;//滚动条
+            background-color: #FAFAFA;
+        }
+
+        .page_main>.main_container>.playlist_info {
+            padding: 20px 40px;
+            margin-bottom: 30px;
+        }
+
+        .page_main>.main_container>.playlist_info>.info_poster {
+            float: left;
+            width: 200px;
+            height: 200px;
+            margin-right: 40px;
+        }
+
+        .page_main>.main_container>.playlist_info>.info_poster>img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .page_main>.main_container>.playlist_info>.info_detail {
+            float: left;
+            width: calc(100% - 200px - 40px);
+            position: relative;
+        }
+
+        .page_main>.main_container>.playlist_info>.info_detail>.detail_palyinfo {
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+        .page_main>.main_container>.playlist_info>.info_detail>.detail_name>.tag {
+            color: #FFFFFF;
+            background-color: #C52F30;
+            padding: 5px 10px;
+            margin-right: 5px;
+        }
+
+        .page_main>.main_container>.playlist_info>.info_detail>.detail_name>.name {
+            font-size: 1.5rem;
+        }
+
+        .page_main>.main_container>.playlist_info>.info_detail>.detail_create {
+            margin: 15px 0;
+        }
+
+        .page_main>.main_container>.playlist_info>.info_detail>.detail_btns>.btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: 1px solid gray;
+            border-radius: 5px;
+        }
+
+        .clear:after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+
+        .page_main>.main_container>.palylist_tab>.tab_btns {
+            padding: 0 40px;
+            border-bottom: 1px solid #C52F30;
+        }
+
+        .page_main>.main_container>.palylist_tab>.tab_btns>.btn {
+            display: inline-block;
+            padding: 0.5rem 2rem;
+            margin: 0 3px;
+            border: 1px solid #A2A2A2;
+            border-bottom: none;
+        }
+
+        .page_main>.main_container>.palylist_tab>.tab_btns>.active {
+            background-color: #C52F30;
+            color: #FAFAFA;
+        }
+
+        .page_main>.main_container>.palylist_tab>.tab_musiclist>table{
+            width: 100%;
+            text-align: left;
+            vertical-align:middle;
+        }
+
+        .page_main>.main_container>.palylist_tab>.tab_musiclist>table th,
+        .page_main>.main_container>.palylist_tab>.tab_musiclist>table td{
+            padding-left: 15px;
+            height: 2rem;
+            max-width: 200px;
+        }
+
+        .page_main>.main_container>.palylist_tab>.tab_musiclist>table th{
+            border-right: 1px solid #C4C4C4;
+        }
+
+
+
+    </style>
+
+</head>
+
+<body>
+<div class="page_head">page_head</div>
+
+<div class="page_menu">
+    <div class="menulist">
+        <div class="list">
+            <p class="title">推荐</p>
+            <div class="btngroups">
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;发现音乐</p>
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;私人FM</p>
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;MV</p>
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;我的朋友</p>
+            </div>
+        </div>
+
+        <div class="list">
+            <p class="title">推荐</p>
+            <div class="btngroups">
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;发现音乐</p>
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;私人FM</p>
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;MV</p>
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;我的朋友</p>
+            </div>
+        </div>
+
+        <div class="list">
+            <p class="title">推荐</p>
+            <div class="btngroups">
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;发现音乐</p>
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;私人FM</p>
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;MV</p>
+                <p class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;我的朋友</p>
+            </div>
+        </div>
+
+        <div class="list"></div>
+
+    </div>
+    <div class="smallwindow">
+        <div class="poster">
+            <img src="img/2.png" />
+        </div>
+        <div class="info">
+            <p>阴天快乐</p>
+            <p>陈奕迅</p>
+        </div>
+        <div class="btngroups">
+            <div><i class="fa fa-music" aria-hidden="true"></i></div>
+            <div><i class="fa fa-music" aria-hidden="true"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="page_palybar">
+
+    <div class="playbar_btns">
+        <div class="btn backward">
+            <i class="fa fa-step-backward" aria-hidden="true"></i>
+        </div>
+        <div class="btn play">
+            <i class="fa fa-play" aria-hidden="true"></i>
+        </div>
+        <div class="btn forward">
+            <i class="fa fa-step-forward" aria-hidden="true"></i>
+        </div>
+    </div>
+
+
+
+    <div class="playbar_process">
+
+        <div class="play_process">
+
+            <div class="process_cache"></div>
+
+            <div class="process_current">
+                <div class="circle"></div>
+            </div>
+
+            <div class="time_star">00:00</div>
+            <div class="time_end">03:55</div>
+
+
+
+        </div>
+    </div>
+
+
+
+</div>
+
+<div class="page_main">
+    <div class="main_container">
+
+        <div class="playlist_info clear">
+
+            <div class="info_poster">
+                <img src="img/1.png" />
+            </div>
+
+            <div class="info_detail">
+
+                <div class="detail_palyinfo">
+                    <span><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;9</span>
+                    <span><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;1</span>
+                </div>
+
+                <div class="detail_name">
+                    <span class="tag">歌单</span>
+                    <span class="name">软件1班的音乐</span>
+                </div>
+
+                <div class="detail_create">
+                    <span>软件1班</span>
+                    <span>2020-06-30</span>
+                    <span>创建</span>
+                </div>
+
+                <div class="detail_btns">
+                    <span class="btn"><i class="fa fa-music" aria-hidden="true" style="color:#C52F30"></i>&nbsp;&nbsp;播放全部</span>
+                    <span class="btn"><i class="fa fa-music" aria-hidden="true"></i>&nbsp;&nbsp;播放全部</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="palylist_tab">
+
+            <div class="tab_btns">
+                <span class="btn active">歌单列表</span>
+                <span class="btn">评论(0)</span>
+                <span class="btn">收藏者</span>
+            </div>
+
+            <div class="tab_musiclist">
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>&nbsp;&nbsp;</th>
+                        <th>操作</th>
+                        <th>音乐标题</th>
+                        <th>歌手</th>
+                        <th>专辑</th>
+                        <th>时长</th>
+                    </tr>
+                    </thead>
+                    <tbody class="infolist" id="infoList_playlist">
+                    <tr data-index="0" data-id="28563317" data-song-name="阴天快乐" data-duration-format="04：20"
+                        data-audio="http://music.163.com/song/media/outer/url?id=28563317.mp3" data-singer-name="陈奕迅" data-album-name="rice & shine" ><!--data-album-pic="http://p1.music.126.net/ZZAQGWl9mR7g5xCyWWH3Pw==/19149094509535913.jpg”-->
+                        <td class="index active" data-num="01">01<i class="fa fa-volume-up" aria-hidden="true"></i></td>
+                        <td><i class="fa fa-heart-o" aria-hidden="true"></i>&nbsp;
+                            <i class="fa fa-download" aria-hidden="true"></i></td>
+                        <td>阴天快乐</td>
+                        <td>陈奕迅</td>
+                        <td>rice & shine</td>
+                        <td>04：20</td>
+                    </tr>
+                    <tr data-index="1" data-id="1432427879" data-song-name="有可能的夜晚（live）" data-duration-format="05：24"
+                        data-audio="http://music.163.com/song/media/outer/url?id=1432427879.mp3" data-singer-name="周深" data-album-name="歌手 当打之年 第7期">
+                        <td class="index" data-num="02">02</td>
+                        <td><i class="fa fa-heart-o" aria-hidden="true"></i>&nbsp;
+                            <i class="fa fa-download" aria-hidden="true"></i></td>
+                        <td>有可能的夜晚（live）</td>
+                        <td>周深</td>
+                        <td>歌手 当打之年 第7期</td>
+                        <td>05：24</td>
+                    </tr>
+                    <tr data-index="2" data-id="30431376" data-song-name="易燃易爆炸" data-duration-format="03：20"
+                        data-audio="http://music.163.com/song/media/outer/url?id=30431376.mp3" data-singer-name="陈粒" data-album-name="如也" >
+                        <td class="index" data-num="03">03</td>
+                        <td><i class="fa fa-heart-o" aria-hidden="true"></i>&nbsp;
+                            <i class="fa fa-download" aria-hidden="true"></i></td>
+                        <td>易燃易爆炸</td>
+                        <td>陈粒</td>
+                        <td>如也</td>
+                        <td>03：20</td>
+                    </tr>
+                    <tr data-index="3" data-id="421423806" data-song-name="小半"data-duration-format="04：57"
+                        data-audio="http://music.163.com/song/media/outer/url?id=421423806.mp3" data-singer-name="陈粒" data-album-name="小梦大半 ">
+                        <td class="index" data-num="04">04</td>
+                        <td><i class="fa fa-heart-o" aria-hidden="true"></i>&nbsp;
+                            <i class="fa fa-download" aria-hidden="true"></i></td>
+                        <td>小半</td>
+                        <td>陈粒</td>
+                        <td>小梦大半</td>
+                        <td>04：57</td>
+                    </tr>
+                    <tr data-index="4" data-id="31877628" data-song-name="十年"  data-duration-format="03:25"
+                        data-audio="http://music.163.com/song/media/outer/url?id=31877628.mp3" data-singer-name="Danny Cope" data-album-name="你的陈奕迅 国语精选">
+                        <td class="index" data-num="05">05</td>
+                        <td><i class="fa fa-heart-o" aria-hidden="true"></i>&nbsp;
+                            <i class="fa fa-download" aria-hidden="true"></i></td>
+                        <td>十年</td>
+                        <td>陈奕迅</td>
+                        <td>你的陈奕迅 国语精选</td>
+                        <td>03：25</td>
+                    </tr>
+                    <tr data-index="5" data-id="32192436" data-song-name="绅士" data-duration-format="04:50"
+                        data-audio="http://music.163.com/song/media/outer/url?id=32192436.mp3" data-singer-name="薛之谦" data-album-name="绅士">
+                        <td class="index" data-num="06">06</td>
+                        <td><i class="fa fa-heart-o" aria-hidden="true"></i>&nbsp;
+                            <i class="fa fa-download" aria-hidden="true"></i></td>
+                        <td>绅士</td>
+                        <td>薛之谦</td>
+                        <td>绅士</td>
+                        <td>04：50</td>
+                    </tr>
+                    <tr data-index="6" data-id="1293886117" data-song-name="年少有为" data-duration-format="04：38"
+                        data-audio="http://music.163.com/song/media/outer/url?id=1293886117.mp3" data-singer-name="李荣浩" data-album-name="耳朵" >
+                        <td class="index" data-num="07">07</td>
+                        <td><i class="fa fa-heart-o" aria-hidden="true"></i>&nbsp;
+                            <i class="fa fa-download" aria-hidden="true"></i></td>
+                        <td>年少有为</td>
+                        <td>李荣浩</td>
+                        <td>耳朵</td>
+                        <td>04：38</td>
+                    </tr>
+                    <tr data-index="7" data-id="65538" data-song-name="好久不见"data-duration-format="04：10"
+                        data-audio="http://music.163.com/song/media/outer/url?id=65538.mp3" data-singer-name="陈奕迅" data-album-name="认了吧">
+                        <td class="index" data-num="08">08</td>
+                        <td><i class="fa fa-heart-o" aria-hidden="true"></i>&nbsp;
+                            <i class="fa fa-download" aria-hidden="true"></i></td>
+                        <td>好久不见</td>
+                        <td>陈奕迅</td>
+                        <td>认了吧</td>
+                        <td>04：10</td>
+                    </tr>
+                    <tr data-index="8" data-id="1407424789" data-song-name="房间" data-duration-format="04：25"
+                        data-audio="http://music.163.com/song/media/outer/url?id=1407424789.mp3" data-singer-name="刘瑞琦" data-album-name="房间">
+                        <td class="index" data-num="09">09</td>
+                        <td><i class="fa fa-heart-o" aria-hidden="true"></i>&nbsp;
+                            <i class="fa fa-download" aria-hidden="true"></i></td>
+                        <td>房间</td>
+                        <td>刘瑞琦</td>
+                        <td>房间</td>
+                        <td>04：25</td>
+                    </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+
+</html>
